@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detention Drawing App</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      touch-action: none;
+    }
+    
+    .container {
+      max-width: 800px;
+      width: 100%;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .setup-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    
+    .drawing-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .upload-button {
+      padding: 12px 24px;
+      font-weight: bold;
+      border: 2px solid;
+      background-color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+    
+    .upload-button:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .image-button {
+      border-color: #1e40af;
+      color: #1e40af;
+    }
+    
+    .sound-button {
+      border-color: #15803d;
+      color: #15803d;
+    }
+    
+    .start-sound-button {
+      border-color: #9c2c2c;
+      color: #9c2c2c;
+    }
+    
+    .detention-button {
+      border-color: #7e1d5f;
+      background-color: #7e1d5f;
+      color: white;
+      padding: 16px 32px;
+      font-size: 18px;
+      margin-top: 24px;
+    }
+    
+    .detention-button:hover {
+      background-color: #9d2574;
+    }
+    
+    .send-button {
+      border-color: #1e40af;
+      color: #1e40af;
+      margin-top: 24px;
+    }
+    
+    .send-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .canvas-container {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      background-color: #d1d5db;
+      touch-action: none;
+    }
+    
+    .placeholder-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #4b5563;
+      font-style: italic;
+      text-align: center;
+      pointer-events: none;
+    }
+    
+    .uploaded-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      z-index: 10;
+    }
+    
+    #drawCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: crosshair;
+      z-index: 20;
+      border-radius: 8px;
+      touch-action: none;
+    }
+    
+    .counter {
+      margin-top: 16px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .counter-warning {
+      margin-left: 8px;
+      font-size: 14px;
+      font-weight: normal;
+      color: #ef4444;
+    }
+    
+    .audio-status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #15803d;
+    }
+    
+    .audio-controls {
+      margin-top: 16px;
+    }
+    
+    .file-status {
+      font-size: 14px;
+      color: #15803d;
+      margin-top: 8px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+    
+    .test-sound-btn {
+      margin-top: 8px;
+      padding: 8px 16px;
+      background-color: #15803d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+	.completion-message {
+	  position: fixed;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	  background-color: rgba(0, 0, 0, 0.8);
+	  color: white;
+	  padding: 24px;
+	  border-radius: 12px;
+	  font-size: 28px;
+	  font-weight: bold;
+	  text-align: center;
+	  z-index: 1000;
+	  animation: fadeIn 1s;
+	}
+    .test-sound-btn:hover {
+      background-color: #166534;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Setup Phase -->
+    <div id="setupContainer" class="setup-container">
+      <h1>Detention Setup</h1>
+      <div class="button-group">
+        <label for="imageInput" class="upload-button image-button" id="uploadImageBtn">Upload Image or GIF</label>
+		        <label for="startSoundInput" class="upload-button start-sound-button" id="uploadStartSoundBtn">Upload Start Sound</label>
+        <label for="soundInput" class="upload-button sound-button" id="uploadSoundBtn">Upload End Sound</label>
+      </div>
+      
+      <div id="imageStatus" class="file-status hidden">✓ Image loaded</div>
+      <div id="soundStatus" class="file-status hidden">✓ Sound loaded</div>
+      <div id="startSoundStatus" class="file-status hidden">✓ Start sound loaded</div>
+      
+    </div>
+	      <button id="startDetentionBtn" class="upload-button detention-button hidden">Start Detention</button>
+
+    
+    <!-- Drawing Phase (Initially Hidden) -->
+    <div id="drawingContainer" class="drawing-container hidden">
+      <div id="canvasContainer" class="canvas-container" style="width: 400px; height: 400px;">
+        <div id="placeholderText" class="placeholder-text">Write your lines</div>
+        <img id="uploadedImage" class="uploaded-image hidden" alt="Uploaded">
+        <canvas id="drawCanvas"></canvas>
+      </div>
+      
+      <button id="sendBtn" class="upload-button send-button">Send Signature</button>
+      
+      <div class="counter">
+        Signatures Sent: <span id="counterValue">0</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen hidden">
+    <div class="loading-message">Detention Unlocking...</div>
+    <div class="loading-animation"></div>
+  </div>
+  
+  <!-- Completion Message -->
+  <div id="completionMessage" class="completion-message hidden">
+    Detention Complete!<br> You are free to go.
+  </div>
+  
+  <input type="file" id="imageInput" accept="image/*,.gif">
+  <input type="file" id="soundInput" accept="audio/*">
+  <input type="file" id="startSoundInput" accept="audio/*">
+  
+  <audio id="audioElement" class="hidden"></audio>
+  <audio id="startAudioElement" class="hidden"></audio>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Elements
+      const setupContainer = document.getElementById('setupContainer');
+      const drawingContainer = document.getElementById('drawingContainer');
+      const loadingScreen = document.getElementById('loadingScreen');
+      const completionMessage = document.getElementById('completionMessage');
+      // Setup phase elements
+      const imageInput = document.getElementById('imageInput');
+      const soundInput = document.getElementById('soundInput');
+      const startSoundInput = document.getElementById('startSoundInput');
+      const uploadImageBtn = document.getElementById('uploadImageBtn');
+      const uploadSoundBtn = document.getElementById('uploadSoundBtn');
+      const uploadStartSoundBtn = document.getElementById('uploadStartSoundBtn');
+      const imageStatus = document.getElementById('imageStatus');
+      const soundStatus = document.getElementById('soundStatus');
+      const startSoundStatus = document.getElementById('startSoundStatus');
+      const startDetentionBtn = document.getElementById('startDetentionBtn');
+      
+      // Drawing phase elements
+      const canvasContainer = document.getElementById('canvasContainer');
+      const placeholderText = document.getElementById('placeholderText');
+      const uploadedImage = document.getElementById('uploadedImage');
+      const drawCanvas = document.getElementById('drawCanvas');
+      const sendBtn = document.getElementById('sendBtn');
+      const counterValue = document.getElementById('counterValue');
+      
+      // Audio elements
+      const audioElement = document.getElementById('audioElement');
+      const startAudioElement = document.getElementById('startAudioElement');
+      
+      // Variables
+      let counter = 0;
+      let isDrawing = false;
+      let hasImage = false;
+      let hasSound = false;
+      let hasStartSound = false;
+      let imageData = null;
+	  let hasDrawnSomething = false;
+
+      
+      // Set up canvas context
+      const ctx = drawCanvas.getContext('2d');
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      // Set up canvas dimensions initially
+      drawCanvas.width = 400;
+      drawCanvas.height = 400;
+      
+      // Function to check if all files are loaded and enable detention button
+      function checkAllFilesLoaded() {
+        if (hasImage && hasSound && hasStartSound) {
+		  // Hide setup phase
+          setupContainer.classList.add('hidden');
+		  
+          startDetentionBtn.classList.remove('hidden');
+        }
+      }
+      
+      // Handle image upload
+      imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            imageData = event.target.result;
+            hasImage = true;
+            imageStatus.classList.remove('hidden');
+            checkAllFilesLoaded();
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // Handle sound upload
+      soundInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          audioElement.src = URL.createObjectURL(file);
+          hasSound = true;
+          soundStatus.classList.remove('hidden');
+          checkAllFilesLoaded();
+        }
+      });
+      
+      // Handle start sound upload
+      startSoundInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          startAudioElement.src = URL.createObjectURL(file);
+          hasStartSound = true;
+          startSoundStatus.classList.remove('hidden');
+          checkAllFilesLoaded();
+        }
+      });
+      
+      // Start detention button
+      startDetentionBtn.addEventListener('click', async () => {
+        
+        // Play start sound
+        await startAudioElement.play().catch(error => {
+          console.error("Start audio playback error:", error);
+        });
+		
+		startDetentionBtn.classList.add('hidden');
+		
+		// Show loading screen
+        loadingScreen.classList.remove('hidden');
+		
+		await new Promise(resolve => setTimeout(resolve, 11000));
+			
+		// Hide loading screen
+        loadingScreen.classList.add('hidden');
+		
+        // Show drawing phase
+        drawingContainer.classList.remove('hidden');
+        
+        // Set up image
+        uploadedImage.src = imageData;
+        uploadedImage.classList.remove('hidden');
+        placeholderText.classList.add('hidden');
+        
+        // Load image dimensions
+        const img = new Image();
+        img.src = imageData;
+        img.onload = () => {
+          // Set maximum dimensions
+          const maxWidth = 800;
+          const maxHeight = 600;
+          
+          let newWidth = img.width;
+          let newHeight = img.height;
+          
+          // Scale down if image is too large
+          if (newWidth > maxWidth) {
+            const ratio = maxWidth / newWidth;
+            newWidth = maxWidth;
+            newHeight = newHeight * ratio;
+          }
+          
+          if (newHeight > maxHeight) {
+            const ratio = maxHeight / newHeight;
+            newHeight = maxHeight;
+            newWidth = newWidth * ratio;
+          }
+          
+          // Update container and canvas dimensions
+          canvasContainer.style.width = `${newWidth}px`;
+          canvasContainer.style.height = `${newHeight}px`;
+          drawCanvas.width = newWidth;
+          drawCanvas.height = newHeight;
+          
+          // Reset context after resize
+          ctx.strokeStyle = 'black';
+          ctx.lineWidth = 4;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+        };
+        
+        sendBtn.disabled = true;
+
+      });
+      
+      // Drawing functions for mouse
+      drawCanvas.addEventListener('mousedown', startDrawing);
+      drawCanvas.addEventListener('mousemove', draw);
+      drawCanvas.addEventListener('mouseup', stopDrawing);
+      drawCanvas.addEventListener('mouseleave', stopDrawing);
+      
+      // Drawing functions for touch
+      drawCanvas.addEventListener('touchstart', handleTouchStart);
+      drawCanvas.addEventListener('touchmove', handleTouchMove);
+      drawCanvas.addEventListener('touchend', stopDrawing);
+      
+      function startDrawing(e) {
+        e.preventDefault();
+        
+        isDrawing = true;
+        
+        const rect = drawCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      }
+      
+      function draw(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        
+        const rect = drawCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        ctx.lineTo(x, y);
+        ctx.stroke();
+		
+		hasDrawnSomething = true;
+  
+	    // Enable the send button once something is drawn
+	    sendBtn.disabled = false;
+      }
+      
+      function handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        
+        isDrawing = true;
+        
+        const rect = drawCanvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      }
+      
+      function handleTouchMove(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        
+        const touch = e.touches[0];
+        const rect = drawCanvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        
+        ctx.lineTo(x, y);
+        ctx.stroke();
+		
+		hasDrawnSomething = true;
+  
+		// Enable the send button once something is drawn
+	    sendBtn.disabled = false;
+      }
+      
+      function stopDrawing() {
+        isDrawing = false;
+      }
+      
+      // Send button
+      sendBtn.addEventListener('click', async () => {
+        ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        counter++;
+        counterValue.textContent = counter;
+        
+		// Reset drawing flag and disable button until new drawing
+		hasDrawnSomething = false;
+		sendBtn.disabled = true;
+  
+        // Check if counter reached 20
+        if (counter === 20) {
+          // Play the completion sound
+          audioElement.currentTime = 0;
+          audioElement.play().catch(error => {
+            console.error("Audio playback error:", error);
+          });
+
+		  await new Promise(resolve => setTimeout(resolve, 6000));
+		  sendBtn.classList.add('hidden');
+
+		  // Show completion message
+		  completionMessage.classList.remove('hidden');
+		
+
+        }
+      });
+    });
+  </script>
+</body>
+</html>
