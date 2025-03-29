@@ -231,7 +231,7 @@
     
     <!-- Drawing Phase (Initially Hidden) -->
     <div id="drawingContainer" class="drawing-container hidden">
-      <div id="canvasContainer" class="canvas-container" style="width: 790px; height: 420px;">
+      <div id="canvasContainer" class="canvas-container" style="width: 400px; height: 400px;">
         <div id="placeholderText" class="placeholder-text">Write your lines</div>
         <img id="uploadedImage" class="uploaded-image hidden" alt="Uploaded">
         <canvas id="drawCanvas"></canvas>
@@ -312,8 +312,8 @@
       ctx.lineJoin = 'round';
       
       // Set up canvas dimensions initially
-      drawCanvas.width = 800;
-      drawCanvas.height = 800;
+      drawCanvas.width = 400;
+      drawCanvas.height = 400;
       
       // Function to check if all files are loaded and enable detention button
       function checkAllFilesLoaded() {
@@ -389,53 +389,41 @@
         placeholderText.classList.add('hidden');
         
         // Load image dimensions
+        const img = new Image();
+        img.src = imageData;
         img.onload = () => {
-		  // Set desired size - this will be the minimum size
-		  const minWidth = 600;
-		  const minHeight = 600;
-		  // Maximum size limits
-		  const maxWidth = 1600;
-		  const maxHeight = 1600;
-		  
-		  let newWidth = img.width;
-		  let newHeight = img.height;
-		  
-		  // Scale up if image is too small (while maintaining aspect ratio)
-		  if (newWidth < minWidth && newWidth <= newHeight) {
-			const ratio = minWidth / newWidth;
-			newWidth = minWidth;
-			newHeight = newHeight * ratio;
-		  } else if (newHeight < minHeight && newHeight <= newWidth) {
-			const ratio = minHeight / newHeight;
-			newHeight = minHeight;
-			newWidth = newWidth * ratio;
-		  }
-		  
-		  // Scale down if image is too large (while maintaining aspect ratio)
-		  if (newWidth > maxWidth) {
-			const ratio = maxWidth / newWidth;
-			newWidth = maxWidth;
-			newHeight = newHeight * ratio;
-		  }
-		  
-		  if (newHeight > maxHeight) {
-			const ratio = maxHeight / newHeight;
-			newHeight = maxHeight;
-			newWidth = newWidth * ratio;
-		  }
-		  
-		  // Update container and canvas dimensions
-		  canvasContainer.style.width = `${newWidth}px`;
-		  canvasContainer.style.height = `${newHeight}px`;
-		  drawCanvas.width = newWidth;
-		  drawCanvas.height = newHeight;
-		  
-		  // Reset context after resize
-		  ctx.strokeStyle = 'black';
-		  ctx.lineWidth = 4;
-		  ctx.lineCap = 'round';
-		  ctx.lineJoin = 'round';
-		};
+          // Set maximum dimensions
+          const maxWidth = 1024;
+          const maxHeight = 1024;
+          
+          let newWidth = img.width;
+          let newHeight = img.height;
+          
+          // Scale down if image is too large
+          if (newWidth > maxWidth) {
+            const ratio = maxWidth / newWidth;
+            newWidth = maxWidth;
+            newHeight = newHeight * ratio;
+          }
+          
+          if (newHeight > maxHeight) {
+            const ratio = maxHeight / newHeight;
+            newHeight = maxHeight;
+            newWidth = newWidth * ratio;
+          }
+          
+          // Update container and canvas dimensions
+          canvasContainer.style.width = `${newWidth}px`;
+          canvasContainer.style.height = `${newHeight}px`;
+          drawCanvas.width = newWidth;
+          drawCanvas.height = newHeight;
+          
+          // Reset context after resize
+          ctx.strokeStyle = 'black';
+          ctx.lineWidth = 4;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+        };
         
         sendBtn.disabled = true;
 
