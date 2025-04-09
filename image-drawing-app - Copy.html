@@ -110,13 +110,10 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       background-color: #d1d5db;
       touch-action: none;
+      height: 503px !important;
+      width: 1107px !important;
     }
 
-    .canvas-sizing {
-      height: 77% !important;
-      width: 90% !important;
-    }
-    
     .placeholder-text {
       position: absolute;
       top: 50%;
@@ -237,10 +234,10 @@
     
     <!-- Drawing Phase (Initially Hidden) -->
     <div id="drawingContainer" class="drawing-container hidden">
-      <div id="canvasContainer" class="canvas-container canvas-sizing" style="width: 400px; height: 400px;">
+      <div id="canvasContainer" class="canvas-container">
         <div id="placeholderText" class="placeholder-text">Write your lines</div>
         <img id="uploadedImage" class="uploaded-image hidden" alt="Uploaded">
-        <canvas id="drawCanvas" class="canvas-sizing"></canvas>
+        <canvas id="drawCanvas" width="1107" height="503"></canvas>
       </div>
       
       <button id="sendBtn" class="upload-button send-button">Send Signature</button>
