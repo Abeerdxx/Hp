@@ -314,10 +314,6 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       
-      // Set up canvas dimensions initially
-      drawCanvas.width = 400;
-      drawCanvas.height = 400;
-      
       // Function to check if all files are loaded and enable detention button
       function checkAllFilesLoaded() {
         if (hasImage && hasSound && hasStartSound) {
@@ -414,12 +410,6 @@
             newHeight = maxHeight;
             newWidth = newWidth * ratio;
           }
-          
-          // Update container and canvas dimensions
-          canvasContainer.style.width = `${newWidth}px`;
-          canvasContainer.style.height = `${newHeight}px`;
-          drawCanvas.width = newWidth;
-          drawCanvas.height = newHeight;
           
           // Reset context after resize
           ctx.strokeStyle = 'black';
