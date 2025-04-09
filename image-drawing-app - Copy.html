@@ -19,7 +19,7 @@
     
     .container {
       height: 90vh;
-      width: 100%;
+      width: 91%;
       padding: 24px;
       display: flex;
       flex-direction: column;
@@ -38,6 +38,7 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
+      height: 100%;
     }
     
     .button-group {
@@ -109,6 +110,9 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       background-color: #d1d5db;
       touch-action: none;
+    }
+
+    .canvas-sizing {
       height: 77% !important;
       width: 90% !important;
     }
@@ -233,10 +237,10 @@
     
     <!-- Drawing Phase (Initially Hidden) -->
     <div id="drawingContainer" class="drawing-container hidden">
-      <div id="canvasContainer" class="canvas-container" style="width: 400px; height: 400px;">
+      <div id="canvasContainer" class="canvas-container canvas-sizing" style="width: 400px; height: 400px;">
         <div id="placeholderText" class="placeholder-text">Write your lines</div>
         <img id="uploadedImage" class="uploaded-image hidden" alt="Uploaded">
-        <canvas id="drawCanvas"></canvas>
+        <canvas id="drawCanvas" class="canvas-sizing"></canvas>
       </div>
       
       <button id="sendBtn" class="upload-button send-button">Send Signature</button>
